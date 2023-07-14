@@ -1,0 +1,38 @@
+{
+  "name": "muffin-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -p .",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write .",
+    "dev": "nodemon --exec ts-node src/main.ts",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.11.0"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/node": "^20.4.2",
+    "@types/signale": "^1.4.4",
+    "axios": "^1.4.0",
+    "dayjs": "^1.11.9",
+    "dotenv": "^16.3.1",
+    "eslint": "^8.45.0",
+    "eslint-config-prettier": "^8.8.0",
+    "glob": "^8.1.0",
+    "glob-promise": "^6.0.3",
+    "nodemon": "^3.0.1",
+    "prettier": "^3.0.0",
+    "signale": "^1.4.0",
+    "ts-node": "^10.9.1",
+    "tsc": "^2.0.4",
+    "typescript": "^5.1.6"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

@@ -4,7 +4,7 @@ import { logger } from "../logger";
 export const event: Event<"ready"> = {
   event: "ready",
   run: async () => {
-    logger.note("The bot is connected and ready!");
+    logger.complete("The bot is connected and ready!");
   },
 };
 
