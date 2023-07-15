@@ -30,7 +30,7 @@ export class ExtendedClient extends Client {
         status: "idle",
         activities: [
           {
-            name: "with myself",
+            name: "with kiwi",
             type: 0,
           },
         ],
@@ -69,7 +69,7 @@ export class ExtendedClient extends Client {
 
     const [eventFiles, slashCommandFiles, textCommandFiles] = await Promise.all(
       [
-        glob(`/events/*.${fileType}`, config),
+        glob(`/events/*/index.${fileType}`, config),
         glob(`/commands/slash/*/index.${fileType}`, config),
         glob(`/commands/text/*/index.${fileType}`, config),
       ],

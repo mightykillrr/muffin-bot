@@ -1,5 +1,5 @@
-import { Event } from "../types";
-import { logger } from "../logger";
+import { Event } from "../../types";
+import { logger } from "../../logger";
 
 export const event: Event<"ready"> = {
   event: "ready",

@@ -1,4 +1,5 @@
 import {
+  ChatInputApplicationCommandData,
   ClientEvents,
   type CommandInteraction,
   type CommandInteractionOptionResolver,
@@ -23,8 +24,13 @@ export interface SlashCommandRunArgs {
   args: CommandInteractionOptionResolver;
 }
 
-export type SlashCommandType = Command & {
-  consumeInstantly?: boolean;
-  ephemeral?: boolean;
-  run: (interaction: SlashCommandRunArgs) => Promise<void>;
-};
+export type SlashCommandType = Command &
+  ChatInputApplicationCommandData & {
+    consumeInstantly?: boolean;
+    ephemeral?: boolean;
+    run: (interaction: SlashCommandRunArgs) => Promise<any>;
+  };
+
+export enum ModalTypes {
+  MovieNight = "movie_night",
+}

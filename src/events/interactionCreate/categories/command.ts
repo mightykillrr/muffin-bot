@@ -1,13 +1,13 @@
-import type { CommandInteraction } from "discord.js";
-import { CommandInteractionOptionResolver } from "discord.js";
-import type { Event, SlashCommandType } from "../types";
-import { client } from "../main";
-import { logger } from "../logger";
+import { client } from "../../../main";
+import { SlashCommandType } from "../../../types";
+import type {
+  CommandInteraction,
+  CommandInteractionOptionResolver,
+} from "discord.js";
+import { logger } from "../../../logger";
 
-const event: Event<"interactionCreate"> = {
-  event: "interactionCreate",
-  run: async (interaction) => {
-    if (!interaction.isCommand()) return;
+export const handleCommand = async (interaction: CommandInteraction) => {
+  if (interaction.isCommand()) {
     if (!interaction.guildId) {
       await interaction.reply("This command can only be used in a server!");
       return;
@@ -26,6 +26,15 @@ const event: Event<"interactionCreate"> = {
     //   guild = new Guild({ guildID: interaction.guildId });
     //   await guild.save();
     // }
+
+    if (command.consumeInstantly) {
+      await command.run({
+        args: interaction.options as CommandInteractionOptionResolver,
+        client,
+        interaction: interaction as CommandInteraction,
+      });
+      return;
+    }
 
     if (command.ownerOnly && !client.owners.includes(interaction.user.id)) {
       await interaction.reply({
@@ -47,21 +56,15 @@ const event: Event<"interactionCreate"> = {
         logger.error(e.message);
         // sendErrorToOwners(interaction, e, client);
         console.log(e);
-        // const errMessage = await interaction.followUp({
-        //   embeds: [
-        //     errorEmbedBuilder(
-        //       "An error occurred while running the command. " +
-        //         "Please try the command again at a later time. The devs have been notified.",
-        //     ),
-        //   ],
-        // });
+        await interaction.followUp(
+          "An error occurred while running the command. " +
+            "Please try the command again at a later time. The devs have been notified.",
+        );
         // addAutoDeleteTimer(errMessage);
       } else {
         // const error = e as APIEmbed;
         // addAutoDeleteTimer(await interaction.followUp({ embeds: [error] }));
       }
     }
-  },
+  }
 };
-
-export default event;
