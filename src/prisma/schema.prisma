@@ -1,0 +1,45 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Movie {
+  id                 String       @id @default(uuid())
+  title              String
+  info_link          String
+  image_link         String
+  is_watched         Boolean      @default(false)
+  votes              Vote[]
+  votes_appeared_ids String[]
+  votes_appeared     MovieNight[]
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+}
+
+model Vote {
+  id             String     @id @default(uuid())
+  user_id        String
+  movie_id       String
+  movie          Movie      @relation(fields: [movie_id], references: [id])
+  movie_night_id String
+  movie_night    MovieNight @relation(fields: [movie_night_id], references: [id])
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+model MovieNight {
+  id         String   @id @default(uuid())
+  movie_ids  String[]
+  message_id String   @unique
+  movies     Movie[]
+  Vote       Vote[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}

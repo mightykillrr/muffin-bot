@@ -33,4 +33,5 @@ export type SlashCommandType = Command &
 
 export enum ModalTypes {
   MovieNight = "movie_night",
+  AddMovie = "add_movie",
 }
