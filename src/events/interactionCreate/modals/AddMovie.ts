@@ -11,12 +11,15 @@ export const handleAddNewMovie = async (
   const title = modalFields.get("movie_name")?.value as string;
   const info_link = modalFields.get("info_link")?.value as string;
   const image_link = modalFields.get("image_link")?.value as string;
+  const movie_description = modalFields.get("movie_description")
+    ?.value as string;
 
   await prisma.movie.create({
     data: {
       title,
       info_link,
       image_link,
+      description: movie_description,
     },
   });
 

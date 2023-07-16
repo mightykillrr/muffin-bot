@@ -140,7 +140,7 @@ const getMovies = async (page: number, showUnwatched: boolean, count = 10) => {
 const formatMovies = (movies: Array<Prisma.MovieSelect>, page: number) => {
   const formatMovieToString = (movie: Prisma.MovieSelect, index: number) => {
     const count = index + 1 + page * 10;
-    return `\`${count}. ${movie.title}\``;
+    return `\`${count}.\` [${movie.title}](${movie.info_link})`;
   };
 
   return movies.map(formatMovieToString).join("\n");

@@ -47,10 +47,26 @@ const command: SlashCommandType = {
         linkToImage,
       );
 
+    const movieDescription = new TextInputBuilder()
+      .setCustomId("movie_description")
+      .setLabel("Movie Description")
+      .setPlaceholder("Enter a description for the movie")
+      .setRequired(true)
+      .setStyle(TextInputStyle.Paragraph);
+    const movieDescriptionRow =
+      new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
+        movieDescription,
+      );
+
     const modal = new ModalBuilder()
       .setTitle("Add a new movie")
       .setCustomId("add_movie")
-      .addComponents(movieNameRow, infoLinkRow, imageLinkRow);
+      .addComponents(
+        movieNameRow,
+        infoLinkRow,
+        imageLinkRow,
+        movieDescriptionRow,
+      );
 
     await interaction.showModal(modal);
   },

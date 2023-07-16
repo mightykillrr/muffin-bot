@@ -15,6 +15,7 @@ model Movie {
   title              String
   info_link          String
   image_link         String
+  description        String       @default("No Description Given")
   is_watched         Boolean      @default(false)
   votes              Vote[]
   votes_appeared_ids String[]
