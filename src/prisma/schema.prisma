@@ -11,17 +11,16 @@ datasource db {
 }
 
 model Movie {
-  id                 String       @id @default(uuid())
-  title              String
-  info_link          String
-  image_link         String
-  description        String       @default("No Description Given")
-  is_watched         Boolean      @default(false)
-  votes              Vote[]
-  votes_appeared_ids String[]
-  votes_appeared     MovieNight[]
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime     @updatedAt
+  id             String       @id @default(uuid())
+  title          String
+  info_link      String
+  image_link     String
+  description    String       @default("No Description Given")
+  is_watched     Boolean      @default(false)
+  votes          Vote[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  votes_appeared MovieNight[]
 }
 
 model Vote {
@@ -30,17 +29,17 @@ model Vote {
   movie_id       String
   movie          Movie      @relation(fields: [movie_id], references: [id])
   movie_night_id String
-  movie_night    MovieNight @relation(fields: [movie_night_id], references: [id])
+  movie_night    MovieNight @relation(fields: [movie_night_id], references: [message_id])
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
 }
 
 model MovieNight {
-  id         String   @id @default(uuid())
-  movie_ids  String[]
-  message_id String   @unique
-  movies     Movie[]
-  Vote       Vote[]
+  message_id String   @id()
+  ends_at    Int
+  votes      Vote[]
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  channel_id String
+  movies     Movie[]
 }

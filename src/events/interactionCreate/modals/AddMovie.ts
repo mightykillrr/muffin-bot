@@ -39,6 +39,7 @@ export const handleAddNewMovie = async (
 //       title: `Movie ${i + 1}`,
 //       info_link: `https://example.com/image${i}.jpg`,
 //       image_link: `https://example.com/info${i}.jpg`,
+//       description: `Description ${i + 1}`,
 //     }))
 //     .map((i) => prisma.movie.create({ data: i }));
 //

@@ -8,6 +8,7 @@ import {
   EmbedBuilder,
   Guild,
   InteractionResponse,
+  Message,
   MessageActionRowComponentBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuInteraction,
@@ -17,6 +18,7 @@ import {
 import { prisma } from "../../../prisma/db";
 import dayjs from "dayjs";
 import { Movie } from "@prisma/client";
+import { addMovieNightToDB, handleMovieVote } from "./helpers";
 
 enum Actions {
   SEND = "send",
@@ -58,11 +60,7 @@ const command: SlashCommandType = {
     });
 
     collector.on("collect", async (i) => {
-      collector.dispose(i);
-
-      // const newActionRow = await createMoviesSelect(i.values, true);
-      // await i.update({ components: [newActionRow] });
-
+      collector.stop();
       await handleMovieNightCreate(i, hours);
     });
   },
@@ -73,7 +71,7 @@ const createMoviesSelect = async () => {
     .setCustomId("movie")
     .setPlaceholder("Select a movie")
     .setMinValues(2)
-    .setMaxValues(5);
+    .setMaxValues(4);
 
   const movies = await prisma.movie.findMany({
     where: { is_watched: false },
@@ -85,10 +83,15 @@ const createMoviesSelect = async () => {
     const { title, description } = movie;
     const id = movie.id.toString();
 
+    const desc =
+      description?.length > 100
+        ? `${description.slice(0, 97)}...`
+        : description;
+
     return new StringSelectMenuOptionBuilder()
       .setLabel(title)
       .setValue(id)
-      .setDescription(description);
+      .setDescription(desc);
   });
 
   select.addOptions(...options);
@@ -113,7 +116,7 @@ const handleMovieNightCreate = async (
 
   const moviesStr = movies.map((i) => i.title);
   const embed = createMovieNightEmbed(guild, moviesStr, timeEnd);
-  const moviesAction = createMoviesActionRow(movies);
+  const moviesAction = createMoviesActionRow(movies, true);
   const modifyRow = createModifyActionRow();
 
   const response = await interaction.update({
@@ -145,6 +148,7 @@ const handleButtonPress = async (
     time: 60_000,
     componentType: ComponentType.Button,
   });
+  let isHorizontal = true;
 
   collector.on("collect", async (i) => {
     const { customId: buttonSelectedID } = i;
@@ -152,17 +156,67 @@ const handleButtonPress = async (
 
     switch (buttonSelectedID) {
       case Actions.SEND: {
-        const embed = createMovieNightEmbed(guild, moviesStr, timeEnd);
-        const moviesAction = createMoviesActionRow(movies);
-      }
-    }
+        collector.stop();
 
-    await i.followUp({
-      content: "Button pressed!",
-      ephemeral: true,
-    });
+        const embed = createMovieNightEmbed(guild, moviesStr, timeEnd);
+        const moviesAction = createMoviesActionRow(movies, isHorizontal);
+
+        const message = (await i.channel?.send({
+          embeds: [embed],
+          components: moviesAction,
+        })) as Message<boolean>;
+        const seconds = dayjs.unix(timeEnd).diff(dayjs(), "seconds");
+
+        await addMovieNightToDB(
+          movies,
+          message.id,
+          message.channel.id,
+          timeEnd,
+        );
+        await handleMovieVote(message, seconds);
+        await i.update({
+          content: "Movie Night created!",
+          embeds: [],
+          components: [],
+        });
+        break;
+      }
+      case Actions.CANCEL: {
+        const mvStr = movies.map((i) => i.title);
+        const desc = formatMoviesToString(mvStr);
+        const embed = new EmbedBuilder()
+          .setTitle("Selected Movies")
+          .setDescription(desc);
+
+        await i.update({
+          content: "Movie Night creation cancelled.",
+          components: [],
+          embeds: [embed],
+        });
+        break;
+      }
+      case Actions.CHANGE_LAYOUT: {
+        const moviesAction = createMoviesActionRow(movies, isHorizontal);
+        isHorizontal = !isHorizontal;
+        const modifyRow = createModifyActionRow();
+
+        await i.update({
+          components: [...moviesAction, modifyRow],
+        });
+        break;
+      }
+      default:
+        await i.reply({
+          content: "Vote Submitted! _This is a mockup message!_",
+          ephemeral: true,
+        });
+        break;
+    }
   });
 };
+
+const formatMoviesToString = (movies: string[]) =>
+  movies.map((movie, index) => `\`${index + 1}. ${movie}\``).join("\n");
 
 const createMovieNightEmbed = (
   guild: Guild,
@@ -176,12 +230,10 @@ const createMovieNightEmbed = (
   const descEnd =
     "The movie with the most votes will be played during the next Movie Night!";
 
-  const movieList = movies
-    .map((movie, index) => `\`${index + 1}. ${movie}\``)
-    .join("\n");
+  const movieList = formatMoviesToString(movies);
 
-  const endTimeFormatted = `<t:${timeWhenVoteEnds}:F>`;
-  const endDesc = `Voting will end at ${endTimeFormatted}.`;
+  const endTimeFormatted = `<t:${timeWhenVoteEnds}:R>`;
+  const endDesc = `Voting will end ${endTimeFormatted}.`;
 
   const desc = `
   ${descStart}
@@ -203,11 +255,8 @@ const createMovieNightEmbed = (
   return embed;
 };
 
-const createMoviesActionRow = (
-  movies: Array<Movie>,
-  type: "vertical" | "horizontal" = "horizontal",
-) => {
-  if (type === "horizontal") {
+const createMoviesActionRow = (movies: Array<Movie>, isHorizontal = false) => {
+  if (isHorizontal) {
     const buttons = movies.map((movie) => {
       return new ButtonBuilder()
         .setCustomId(movie.id)
