@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Movie" ADD COLUMN     "movie_vote_won_id" TEXT NOT NULL DEFAULT '1130609156043321434';

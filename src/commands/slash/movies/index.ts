@@ -14,6 +14,11 @@ import {
 } from "discord.js";
 import { prisma } from "../../../prisma/db";
 import { Prisma } from "@prisma/client";
+import { createMessageURL } from "../../functions";
+
+type MovieGetPayload = Prisma.MovieGetPayload<{
+  include: { votes_appeared: true };
+}>;
 
 const COUNT = 20;
 
@@ -134,13 +139,29 @@ const getMovies = async (page: number, showUnwatched: boolean, count = 10) => {
     skip,
     take: count,
     orderBy: { title: "asc" },
-  }) as unknown as Promise<Array<Prisma.MovieSelect>>;
+    include: { votes_appeared: true },
+  });
 };
 
-const formatMovies = (movies: Array<Prisma.MovieSelect>, page: number) => {
-  const formatMovieToString = (movie: Prisma.MovieSelect, index: number) => {
+const formatMovieNights = (movie: MovieGetPayload) => {
+  const votes = movie.votes_appeared.length ?? 0;
+  const movieNights = movie.votes_appeared.map((movieNight, idx) => {
+    const { message_id, channel_id, guild_id } = movieNight;
+    const messageURL = createMessageURL(guild_id, channel_id, message_id);
+    return `[${idx + 1}](${messageURL})`;
+  });
+
+  return movieNights.join("-");
+};
+
+const formatMovies = (movies: Array<MovieGetPayload>, page: number) => {
+  const formatMovieToString = (movie: MovieGetPayload, index: number) => {
     const count = index + 1 + page * 10;
-    return `\`${count}.\` [${movie.title}](${movie.info_link})`;
+    const movieNights = movie.votes_appeared.length
+      ? `→ ${formatMovieNights(movie)}`
+      : "";
+
+    return `\`${count}.\` [${movie.title}](${movie.info_link}) ${movieNights}`;
   };
 
   return movies.map(formatMovieToString).join("\n");
@@ -150,13 +171,13 @@ const createEmbedWithPagination = (
   page: number,
   max: number,
   showUnwatched: boolean,
-  movies: Array<Prisma.MovieSelect>,
+  movies: Array<MovieGetPayload>,
   count = 10,
 ) => {
   const formattedList = formatMovies(movies, page);
   const title = showUnwatched
-    ? `Watched Movies (${max})`
-    : `Unwatched Movies (${max})`;
+    ? `Unwatched Movies (${max})`
+    : `Watched Movies (${max})`;
   const footer = `Page ${page + 1} of ${Math.ceil(max / count)}`;
 
   return new EmbedBuilder()

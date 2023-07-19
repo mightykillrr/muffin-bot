@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "MovieNight" ADD COLUMN     "guild_id" TEXT NOT NULL DEFAULT '1084811860693491712';

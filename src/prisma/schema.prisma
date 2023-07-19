@@ -11,16 +11,17 @@ datasource db {
 }
 
 model Movie {
-  id             String       @id @default(uuid())
-  title          String
-  info_link      String
-  image_link     String
-  description    String       @default("No Description Given")
-  is_watched     Boolean      @default(false)
-  votes          Vote[]
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  votes_appeared MovieNight[]
+  id                String       @id @default(uuid())
+  title             String
+  info_link         String
+  image_link        String
+  description       String
+  is_watched        Boolean      @default(false)
+  votes             Vote[]
+  votes_appeared    MovieNight[]
+  movie_vote_won_id String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 }
 
 model Vote {
@@ -35,11 +36,24 @@ model Vote {
 }
 
 model MovieNight {
-  message_id String   @id()
-  ends_at    Int
-  votes      Vote[]
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  channel_id String
-  movies     Movie[]
+  message_id         String               @id()
+  ends_at            Int
+  votes              Vote[]
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  channel_id         String
+  guild_id           String
+  movies             Movie[]
+  MovieNightReminder MovieNightReminder[]
+}
+
+model MovieNightBlacklist {
+  id      String @id @default(uuid())
+  user_id String
+}
+
+model MovieNightReminder {
+  movie_night_id String     @id
+  movie_night    MovieNight @relation(fields: [movie_night_id], references: [message_id])
+  reminder_at    Int
 }
