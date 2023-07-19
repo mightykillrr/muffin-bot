@@ -18,6 +18,7 @@ import {
   MovieNightWithVotesAndMovies,
 } from "../checkvotes/helpers";
 import { client } from "../../../main";
+import { movieNightSettings } from "../../../config";
 
 export const handleVoteAddResponse = async (
   res: Awaited<ReturnType<typeof addVoteToDB>>,
@@ -217,10 +218,11 @@ export const handleMovieVote = async (
     await message.edit({ components: moviesRow });
 
     // SEND OWNER DM
-    const winnerEmbed = await createOwnerMessage(
+    const winnerEmbed = await createWinnerMovieEmbed(
       winnerMovie,
       timeStreamed,
       messageURL,
+      true,
     );
     const votesEmbed = createMovieVotesEmbed(movieNight);
     await sendMessageToOwners({ embeds: [winnerEmbed, votesEmbed] });
@@ -244,11 +246,18 @@ export const handleMovieVote = async (
         "your movie has already been watched. ❣️",
     );
     const roleMention = "<@&736682166762864671>";
+    const { announcementChannelID } = movieNightSettings;
+    const announcementChannel = client.channels.cache.get(
+      announcementChannelID,
+    );
 
-    await message.channel.send({
-      content: roleMention,
-      embeds: [mainEmbed, suggestionsEmbed],
-    });
+    if (announcementChannel?.isTextBased()) {
+      await announcementChannel.send({
+        content: roleMention,
+        embeds: [mainEmbed, suggestionsEmbed],
+      });
+    }
+
     await prisma.movie.update({
       where: { id: winnerMovie.id },
       data: { is_watched: true, movie_vote_won_id: message_id },
@@ -320,34 +329,17 @@ const getWinnerMovie = (movies: Array<Movie>, votes: Array<Vote>) => {
   return movies.find((movie) => movie.id === winnerMovieID) as Movie;
 };
 
-const createOwnerMessage = async (
-  movie: Movie,
-  timeStreamed: number,
-  messageURL: string,
-) => {
-  const time = `<t:${timeStreamed}:R>`;
-  const winnerDesc = `${movie.title} has won this [movie night's](${messageURL}) vote!`;
-  const streamedOnDesc = `The movie will be streamed on ${time}.`;
-
-  const desc = `${winnerDesc} ${streamedOnDesc}`;
-
-  const embed = new EmbedBuilder();
-  embed.setDescription(desc);
-  embed.setImage(movie.image_link);
-  embed.setURL(movie.info_link);
-  embed.setTitle(movie.title);
-
-  return embed;
-};
-
 const createWinnerMovieEmbed = (
   movie: Movie,
   timeStreamed: number,
   messageURL: string,
+  isForOwner = false,
 ) => {
   const winnerDesc = `${movie.title} has won this [movie night's](${messageURL}) vote!`;
-  const time = `<t:${timeStreamed}:f>`;
-  const streamedOnDesc = `The movie will be streamed on ${time}. Hoping to see you there!`;
+  const time = `<t:${timeStreamed}:${isForOwner ? "R" : "f"}>`;
+  const streamedOnDesc = `The movie will be streamed on ${time}.${
+    isForOwner ? "" : " Hoping to see you there!"
+  }`;
 
   const desc = `${winnerDesc} ${streamedOnDesc}`;
 
@@ -356,6 +348,7 @@ const createWinnerMovieEmbed = (
   embed.setImage(movie.image_link);
   embed.setURL(movie.info_link);
   embed.setTitle(movie.title);
+  embed.setColor("#00FFFF");
 
   return embed;
 };

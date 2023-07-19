@@ -1,6 +1,9 @@
 import dayjs from "dayjs";
 import { prisma } from "../../../prisma/db";
-import { handleMovieRemindersAdd } from "../../../commands/slash/movienight/helpers";
+import {
+  getStreamingTime,
+  handleMovieRemindersAdd,
+} from "../../../commands/slash/movienight/helpers";
 
 export const handleMovieNightsReminders = async () => {
   const currentUnix = dayjs().unix();
@@ -11,8 +14,9 @@ export const handleMovieNightsReminders = async () => {
 
   const movieNightReminders = activeMovieNightReminders.map(
     async (movieNightReminder) => {
-      const { movie_night } = movieNightReminder;
-      await handleMovieRemindersAdd(movie_night);
+      const { movie_night, reminder_at } = movieNightReminder;
+      const timeStreamed = getStreamingTime(movie_night.ends_at);
+      await handleMovieRemindersAdd(movie_night, timeStreamed);
     },
   );
 
