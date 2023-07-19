@@ -43,7 +43,7 @@ const command: SlashCommandType = {
       required: false,
       type: ApplicationCommandOptionType.Number,
       minValue: 0.01,
-      maxValue: 24,
+      maxValue: 100,
     },
   ],
   run: async ({ interaction }) => {

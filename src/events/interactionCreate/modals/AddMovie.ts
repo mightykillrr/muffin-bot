@@ -45,3 +45,31 @@ export const handleAddNewMovie = async (
 //
 //   return Promise.all(arr);
 // };
+
+// export const addMovies = async () => {
+//   const movies = [
+//     {
+//       title: "Star Wars: Episode I",
+//       info_link: "https://www.youtube.com/watch?v=uMoSnrd7i5c",
+//       image_link:
+//         "https://m.media-amazon.com/images/M/MV5BYTRhNjcwNWQtMGJmMi00NmQyLWE2YzItODVmMTdjNWI0ZDA2XkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_.jpg",
+//       description: "The Phantom Menace",
+//     },
+//     {
+//       title: "Extraction 2",
+//       info_link: "https://www.youtube.com/watch?v=Y274jZs5s7s",
+//       image_link:
+//         "https://upload.wikimedia.org/wikipedia/en/0/02/Extraction_2_poster.jpg",
+//       description: "Extraction 2",
+//     },
+//     {
+//       title: "Tomb Raider (2018)",
+//       info_link: "https://www.youtube.com/watch?v=3KkhD0MnaJU",
+//       image_link:
+//         "https://m.media-amazon.com/images/M/MV5BOTY4NDcyZGQtYmVlNy00ODgwLTljYTMtYzQ2OTE3NDhjODMwXkEyXkFqcGdeQXVyNzYzODM3Mzg@._V1_.jpg",
+//       description: "Tomb Raider (2018)",
+//     },
+//   ];
+//
+//   return Promise.all(movies.map((i) => prisma.movie.create({ data: i })));
+// };

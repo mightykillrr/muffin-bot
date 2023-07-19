@@ -1,3 +1,3 @@
 export const movieNightSettings = {
-  announcementChannelID: "1130607251065933935",
+  announcementChannelID: "743748100367187999",
 };

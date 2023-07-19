@@ -27,19 +27,19 @@ export const handleCommand = async (interaction: CommandInteraction) => {
     //   await guild.save();
     // }
 
+    if (command.ownerOnly && !client.owners.includes(interaction.user.id)) {
+      await interaction.reply({
+        ephemeral: true,
+        content: "This command can only be used by the bot owners!",
+      });
+      return;
+    }
+
     if (command.consumeInstantly) {
       await command.run({
         args: interaction.options as CommandInteractionOptionResolver,
         client,
         interaction: interaction as CommandInteraction,
-      });
-      return;
-    }
-
-    if (command.ownerOnly && !client.owners.includes(interaction.user.id)) {
-      await interaction.reply({
-        ephemeral: true,
-        content: "This command can only be used by the bot owners!",
       });
       return;
     }
