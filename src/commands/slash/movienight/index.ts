@@ -119,7 +119,7 @@ const handleMovieNightCreate = async (
   interaction: StringSelectMenuInteraction,
   hours: number,
 ) => {
-  const guild = (await interaction.guild) as Guild;
+  const guild = interaction.guild as Guild;
 
   const { values: moviesIDs } = interaction;
 
@@ -159,7 +159,7 @@ const handleButtonPress = async (
     moviesStr: string[];
   },
 ) => {
-  const collector = await response.createMessageComponentCollector({
+  const collector = response.createMessageComponentCollector({
     filter: (i) => interaction.user.id === i.user.id,
     time: 60_000,
     componentType: ComponentType.Button,
@@ -178,8 +178,10 @@ const handleButtonPress = async (
         const moviesAction = createMoviesActionRow(movies, isHorizontal);
 
         const message = (await i.channel?.send({
+          content: "<@&881817956733442058>",
           embeds: [embed],
           components: moviesAction,
+          allowedMentions: { parse: ["roles"] },
         })) as Message<boolean>;
         const seconds = dayjs.unix(timeEnd).diff(dayjs(), "milliseconds");
 

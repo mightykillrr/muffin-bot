@@ -2,4 +2,7 @@ node_modules
 .env
 .idea
 dist
+pg-data
 tsconfig.tsbuildinfo
+compose.yml
+something.sql

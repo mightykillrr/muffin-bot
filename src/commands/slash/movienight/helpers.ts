@@ -176,8 +176,8 @@ export const getStreamingTime = (unixTime?: number): number => {
   return timeStreamed
     .set("second", 0)
     .set("millisecond", 0)
-    .set("minute", 30)
-    .set("hour", 5)
+    .set("minute", 0)
+    .set("hour", 21)
     .add(1, "day")
     .unix();
 };
@@ -218,7 +218,7 @@ export const handleMovieVote = async (
     await message.edit({ components: moviesRow });
 
     // SEND OWNER DM
-    const winnerEmbed = await createWinnerMovieEmbed(
+    const winnerEmbed = createWinnerMovieEmbed(
       winnerMovie,
       timeStreamed,
       messageURL,
@@ -255,6 +255,7 @@ export const handleMovieVote = async (
       await announcementChannel.send({
         content: roleMention,
         embeds: [mainEmbed, suggestionsEmbed],
+        allowedMentions: { parse: ["roles"] },
       });
     }
 
